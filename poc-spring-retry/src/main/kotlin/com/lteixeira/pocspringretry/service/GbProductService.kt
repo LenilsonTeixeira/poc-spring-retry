@@ -6,6 +6,7 @@ import com.lteixeira.pocspringretry.model.Product
 import com.lteixeira.pocspringretry.validator.GbProductValidation
 import org.slf4j.LoggerFactory
 import org.springframework.retry.annotation.Backoff
+import org.springframework.retry.annotation.Recover
 import org.springframework.retry.annotation.Retryable
 import org.springframework.stereotype.Service
 
@@ -21,8 +22,16 @@ class GbProductService(private val gbProductHttpClient: GbProductHttpClient) {
         log.info("Realizando chamada para a gbproducts para o sku ${sku}")
         val product = gbProductHttpClient.getProduct(sku)
         log.info("Retorno da gbproducts: SKU: ${product.sku} Status: ${product.status}")
+        log.info("---------------------------------------------------------------------")
         GbProductValidation.validate(product)
+        
         return product
+    }
+
+    @Recover
+    fun sendToSqs(exception: ProductStatusInvalidException): Product {
+        log.info("Publicando mensagem na fila de eventos do SQS")
+        return Product("", "")
     }
 
 }
