@@ -1,0 +1,6 @@
+gbproduct:
+  api:
+    url: "http://localhost:8081"
+  retry:
+    maxAttempts: 3
+    maxDelay: 1000
